@@ -3,7 +3,7 @@ import OrderStepForm from './../components/OrderStepsForm';
 
 export default function Home(props) {
   return (
-    <div className="w-full p-12 md:p-36 flex h-screen items-center justify-center">
+    <div className="w-full p-12 sm:p-20 lg:p-36 flex h-screen items-center justify-center">
       <OrderStepForm productsById={props.productsById} />
     </div>
   )
