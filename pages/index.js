@@ -1,10 +1,10 @@
 import Head from 'next/head'
 import OrderStepForm from './../components/OrderStepsForm';
 
-export default function Home() {
+export default function Home(props) {
   return (
     <div className="w-full p-12 md:p-36 flex h-screen items-center justify-center">
-      <OrderStepForm />
+      <OrderStepForm productsById={props.productsById} />
     </div>
   )
 }
@@ -17,8 +17,15 @@ export async function getServerSideProps() {
     }),
   })
   const data = await res.json()
-
+  const productIdsToInclude = [5, 10, 11]
+  const products = data.result.reduce((acc, curr) => {
+    if (!productIdsToInclude.includes(curr.id)) {
+      return acc;
+    }
+    acc[curr.id] = curr;
+    return acc;
+  }, {});
   // Pass data to the page via props
-  return { props: { data } }
+  return { props: { productsById: products } }
 }
 
