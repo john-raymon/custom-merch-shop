@@ -12,24 +12,26 @@ export default function OrderStepForm(props) {
           </p>
         </div>
         <div className="flex w-1/2">
-          <ul>
-            <li>
-              <div>
-                <input name="product-type" type="radio" />
-                {/* <label for="huey">s</label> */}
-              </div>
-            </li>
-            <li>
-              <div>
-                <input name="product-type" type="radio" />
-              </div>
-            </li>
-            <li>
-              <div>
-                <input name="product-type" type="radio" />
-              </div>
-            </li>
+          <ul className="space-y-6 w-full">
+            {
+              Object.values(props.productsById).map((product) => {
+                return (
+                  <li key={product.id + product.variant_count} className="flex flex-row space-x-6 border-b">
+                    <div className="self-center">
+                      <input name="product-type" type="radio" />
+                      {/* <label for="huey">s</label> */}
+                    </div>
+                    <div>
+                      <img src={product.image} className="object-cover h-24 w-1/2" />
+                    </div>
+                  </li>
+                );
+              })
+            }
           </ul>
+          <button>
+            
+          </button>
         </div>
       </div>
     </form>
