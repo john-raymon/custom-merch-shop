@@ -15,9 +15,9 @@ export async function getServerSideProps() {
     headers: new Headers({
       "Authorization": `Basic ${Buffer.from(`${process.env.PRINTFUL_API_KEY}:`).toString('base64')}`
     }),
-  })
-  const data = await res.json()
-  const productIdsToInclude = [5, 10, 11]
+  });
+  const data = await res.json();
+  const productIdsToInclude = [5, 10, 11];
   const products = data.result.reduce((acc, curr) => {
     if (!productIdsToInclude.includes(curr.id)) {
       return acc;
