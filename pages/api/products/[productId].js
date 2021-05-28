@@ -24,6 +24,5 @@ export default handler
       acc[variant.color] = {...(acc[variant.color] || {}), [variant.size]: variant };
       return acc;
     }, {});
-    // Pass data to the page via props
     return res.json({ variants })
   });

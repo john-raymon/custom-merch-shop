@@ -1,11 +1,4 @@
 const onError = (err, req, res) => {
-  console.log('there\'s an error in the user index.js route', err);
-  /**
-   * if no error is caught above,
-   * then pass below, which then goes
-   * to the root app.js error-handler
-   * app-level middleware
-   */
   if (err.name === "ForbiddenError") {
     return res.status(403).json({
       success: false,
