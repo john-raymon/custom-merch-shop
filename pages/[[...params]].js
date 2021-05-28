@@ -1,16 +1,23 @@
+import { useRouter } from 'next/router';
 import Head from 'next/head'
-import OrderStepForm from './../components/OrderStepsForm';
+import OrderStepForm from '../components/OrderStepsForm';
+
 
 export default function Home(props) {
+  const router = useRouter();
+  const [currentStep] = router.query.params || [1];
   return (
     <div className="w-full p-12 sm:p-20 lg:p-36 flex h-screen items-center justify-center">
-      <OrderStepForm productsById={props.productsById} />
+      <OrderStepForm productsById={props.productsById} currentStep={parseInt(currentStep)} />
     </div>
   )
 }
 // TODO : move serverSide data fetching logic to respective step
-export async function getServerSideProps() {
-  // Fetch data from external API
+export async function getServerSideProps(context) {
+  const [currentStep] = context.params.params || [1];
+  if (currentStep > 1) {
+    return { props: {} };
+  }
   const res = await fetch('https://api.printful.com/products', {
     headers: new Headers({
       "Authorization": `Basic ${Buffer.from(`${process.env.PRINTFUL_API_KEY}:`).toString('base64')}`

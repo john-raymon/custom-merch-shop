@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-
+import { useRouter } from 'next/router';
 
 function StepTwo(props) {
   return (
@@ -168,27 +168,27 @@ function StepOne(props) {
 
 export default function OrderStepForm(props) { 
   const [productVariant, setProductVariant] = useState(null);
-  const [steps, setSteps] = useState({
-    currentStep: 1,
-    totalSteps: 3,
-  })
+  const router = useRouter();
   // go to previous step
   function prevStep(e) {
     if (e && e.preventDefault) {
       e.preventDefault();
     }
-    if (steps.currentStep > 1) {
-      setSteps({ ...steps, currentStep: steps.currentStep - 1});
+    if (props.currentStep > 1) {
+      router.push(`/${props.currentStep - 1}`)
+      // setSteps({ ...steps, currentStep: props.currentStep - 1});
     }
   }
   // for last step instead of calling nextStep call submitForm method
   function nextStep() {
-    if (steps.currentStep < 3) {
-      setSteps({...steps, currentStep: steps.currentStep + 1})
+    if (props.currentStep < 3) {
+      router.push(`/${props.currentStep + 1}`)
+      // setSteps({...steps, currentStep: props.currentStep + 1})
     }
   }
+
   function renderSwitchSteps(step) {
-    switch (step) {
+    switch (parseInt(step)) {
       case 1:
         return (<StepOne productsById={props.productsById} handleNextSubmit={(productVariant) => { setProductVariant(productVariant); nextStep(); }} productVariant={productVariant} />);
         break;
@@ -201,7 +201,7 @@ export default function OrderStepForm(props) {
   return (
     <form className="w-full h-full">
       {
-        renderSwitchSteps(steps.currentStep)
+        renderSwitchSteps(props.currentStep)
       }
     </form>
   )
