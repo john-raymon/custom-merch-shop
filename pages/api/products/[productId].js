@@ -21,7 +21,7 @@ export default handler
       if (variant.availability_status[0].status !== 'in_stock') {
         return acc;
       }
-      acc[variant.color] = variant;
+      acc[variant.color] = {...(acc[variant.color] || {}), [variant.size]: variant };
       return acc;
     }, {});
     // Pass data to the page via props
