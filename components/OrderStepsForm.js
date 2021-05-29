@@ -2,13 +2,50 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 
 function StepTwo(props) {
+  const backgroundStyles = {
+    background: props.productColor || '#000000',
+  };
   return (
-    <div className="w-full">
+    <div className="w-full h-full">
+      <div className="flex py-10">
+        <div className="flex h-full w-1/2">
+          <p className="w-3/4 font-quest text-6xl text-left">
+            Select an area to design.
+          </p>
+        </div>
+        <div className="w-1/2 h-full">
+          <div className="w-full flex flex-wrap justify-end space-y-8 space-x-5">
+              <div className="w-full flex justify-end cursor-pointer">
+                <div className="w-1/2 overflow-hidden rounded-3xl shadow-2xl clear-right">
+                  <div className="aspect-w-1 aspect-h-1" style={backgroundStyles}>
+                    <img src="/short-sleeve-front.png" className="w-full" />
+                  </div>
+                </div>
+              </div>
+              <div className="w-1/5 overflow-hidden rounded-3xl shadow-2xl cursor-pointer">
+                <div className="aspect-w-1 aspect-h-1" style={backgroundStyles}>
+                  <img src="/short-sleeve-back.png" className="w-full" />
+                </div>
+              </div>
+              <div className="w-1/5 overflow-hidden rounded-3xl shadow-2xl cursor-pointer">
+                <div className="aspect-w-1 aspect-h-1" style={backgroundStyles}>
+                  <img src="/short-sleeve-right-sleeve.png" className="w-full" />
+                </div>
+              </div>
+              <div className="w-1/5 overflow-hidden rounded-3xl shadow-2xl cursor-pointer">
+                <div className="aspect-w-1 aspect-h-1" style={backgroundStyles}>
+                  <img src="/short-sleeve-left-sleeve.png" className="w-full" />
+                </div>
+              </div>
+          </div>
+        </div>
+      </div>
+
       <div className="w-full flex justify-between space-x-1">
-          <button onClick={props.prevStep} className="disabled:opacity-50 w-full md:w-2/5 font-quest text-white text-md bg-black p-4 self-end my-16 outline-none">
+          <button onClick={props.prevStep} className="disabled:opacity-50 w-full md:w-2/5 font-quest text-white text-md bg-black p-4 self-end my-1 outline-none">
             Prev
           </button>
-          <button className="disabled:opacity-50 w-full md:w-2/5 font-quest text-white text-md bg-black p-4 self-end my-16 outline-none">
+          <button className="disabled:opacity-50 w-full md:w-2/5 font-quest text-white text-md bg-black p-4 self-end my-1 outline-none">
             Next
           </button>
       </div>
@@ -18,9 +55,19 @@ function StepTwo(props) {
 
 function StepOne(props) {
   const [selectedProduct, setProduct] = useState("");
-  const [selectedProductVariant, setSelectedProductVariant] = useState(null);
-  const [productsById, updateProducts] = useState({ ...props.productsById })
+  const [selectedProductVariant, _setSelectedProductVariant] = useState(null);
+  const [productObject, setProductObject] = useState(null);
+  const [productsById, updateProducts] = useState({ ...props.productsById });
+  const setSelectedProductVariant = (productVariant) => {
+    _setSelectedProductVariant(productVariant)
+    if (productVariant === null) {
+      setProductObject(null);
+    } else {
+      setProductObject(productsById[selectedProduct]) //selectedProduct shouldve really an object in the first place;
+    }
+  }
   useEffect(() => {
+    handleProductChange(null, 5);
     if (props.productVariant) {
       handleProductChange(null, props.productVariant.product_id);
     }
@@ -78,11 +125,11 @@ function StepOne(props) {
     e.preventDefault();
     // valid if there is a selectedProductVariant object
     if (selectedProductVariant) {
-      props.handleNextSubmit(selectedProductVariant);
+      props.handleNextSubmit(selectedProductVariant, productObject);
     }
   }
   return (
-    <div className="flex w-full">
+    <div className="flex w-full h-full">
       <div className="flex h-full w-1/2">
         <p className="w-3/4 font-quest text-6xl text-left">
           Choose a product to design
@@ -168,7 +215,16 @@ function StepOne(props) {
 
 export default function OrderStepForm(props) { 
   const [productVariant, setProductVariant] = useState(null);
+  const [productObject, setProductObject] = useState(null);
   const router = useRouter();
+  useEffect(() => {
+    if (props.currentStep > 1 && !productVariant) {
+      router.push('/1'); 
+      // todo: store step data in local
+      // storage and rehydrate state with it, if state from previous components are missing
+    }
+  })
+
   // go to previous step
   function prevStep(e) {
     if (e && e.preventDefault) {
@@ -190,10 +246,10 @@ export default function OrderStepForm(props) {
   function renderSwitchSteps(step) {
     switch (parseInt(step)) {
       case 1:
-        return (<StepOne productsById={props.productsById} handleNextSubmit={(productVariant) => { setProductVariant(productVariant); nextStep(); }} productVariant={productVariant} />);
+        return (<StepOne productsById={props.productsById} handleNextSubmit={(productVariant, productObject) => { setProductVariant(productVariant); setProductObject(productObject); nextStep(); }} productVariant={productVariant} productObject={productObject} />);
         break;
       case 2:
-        return (<StepTwo prevStep={prevStep}></StepTwo>);
+        return (<StepTwo prevStep={prevStep} productColor={(productVariant && productVariant.color_code) || null}></StepTwo>);
       default:
         break;
     }

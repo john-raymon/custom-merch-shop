@@ -7,7 +7,7 @@ export default function Home(props) {
   const router = useRouter();
   const [currentStep] = router.query.params || [1];
   return (
-    <div className="w-full p-12 sm:p-20 lg:p-36 flex h-screen items-center justify-center">
+    <div className="w-full px-24 my-12 h-full">
       <OrderStepForm productsById={props.productsById} currentStep={parseInt(currentStep)} />
     </div>
   )
@@ -24,7 +24,7 @@ export async function getServerSideProps(context) {
     }),
   });
   const data = await res.json();
-  const productIdsToInclude = [5, 10, 11];
+  const productIdsToInclude = [5]; // 10 11
   const products = data.result.reduce((acc, curr) => {
     if (!productIdsToInclude.includes(curr.id)) {
       return acc;

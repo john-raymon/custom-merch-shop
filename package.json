@@ -8,6 +8,7 @@
     "start": "next start"
   },
   "dependencies": {
+    "@tailwindcss/aspect-ratio": "^0.2.1",
     "lite-react-ui": "^0.1.9",
     "next": "10.2.3",
     "next-connect": "^0.10.1",
