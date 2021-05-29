@@ -7,7 +7,7 @@ export default function Home(props) {
   const router = useRouter();
   const [currentStep] = router.query.params || [1];
   return (
-    <div className="w-full px-24 my-12 h-full">
+    <div className="container mx-auto px-24 my-12 h-full">
       <OrderStepForm productsById={props.productsById} currentStep={parseInt(currentStep)} />
     </div>
   )
