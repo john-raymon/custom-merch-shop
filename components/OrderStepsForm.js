@@ -1,10 +1,41 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
+import Link from 'next/link';
+const fabric = require('fabric').fabric;
+/**
+ * This component should receive the string for the area that's going to be designed and also the dimensions
+ * to design on. It should handle rendering sections dynamically for the given values. 
+ */
+function DesignEditor(props) {
+  useEffect(() => {
+    const canvas = new fabric.Canvas('fabric-canvas');
+
+    // create a rectangle object
+    const rect = new fabric.Rect({
+      left: 100,
+      top: 100,
+      fill: 'red',
+      width: 20,
+      height: 20
+    });
+
+    // "add" rectangle onto canvas
+    canvas.add(rect);
+  }, [])
+  return (
+    <div className="w-full h-full fixed top-0 left-0 bg-black bg-opacity-70">
+      <canvas id="fabric-canvas" />
+    </div>
+  );
+}  
 
 function StepTwo(props) {
   const backgroundStyles = {
     background: props.productColor || '#000000',
   };
+  const [showDesignEditor, setShowDesignEditor] = useState(false);
+  const router = useRouter();
+
   return (
     <div className="w-full h-full">
       <div className="flex py-10">
@@ -23,9 +54,11 @@ function StepTwo(props) {
                 </div>
               </div>
               <div className="w-1/5 overflow-hidden rounded-3xl shadow-2xl cursor-pointer">
-                <div className="aspect-w-1 aspect-h-1" style={backgroundStyles}>
-                  <img src="/short-sleeve-back.png" className="w-full" />
-                </div>
+                <Link className="aspect-w-1 aspect-h-1" href='/2/design-editor/short-sleeve-back'>
+                  <div style={backgroundStyles} >
+                    <img src="/short-sleeve-back.png" className="w-full" />
+                  </div>
+                </Link>
               </div>
               <div className="w-1/5 overflow-hidden rounded-3xl shadow-2xl cursor-pointer">
                 <div className="aspect-w-1 aspect-h-1" style={backgroundStyles}>
@@ -49,6 +82,10 @@ function StepTwo(props) {
             Next
           </button>
       </div>
+
+      {
+        router.query.params[1] === 'design-editor' && <DesignEditor type={router.query.params[2]} />
+      }
     </div>
   )
 }
