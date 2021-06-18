@@ -1,38 +1,80 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
-const fabric = require('fabric').fabric;
+import { FabricJSCanvas, useFabricJSEditor } from 'fabricjs-react';
+import invert from 'invert-color';
+
 /**
  * This component should receive the string for the area that's going to be designed and also the dimensions
  * to design on. It should handle rendering sections dynamically for the given values. 
  */
 function DesignEditor(props) {
-  useEffect(() => {
-    const canvas = new fabric.Canvas('fabric-canvas');
-
-    // create a rectangle object
-    const rect = new fabric.Rect({
-      left: 100,
-      top: 100,
-      fill: 'red',
-      width: 20,
-      height: 20
-    });
-
-    // "add" rectangle onto canvas
-    canvas.add(rect);
-  }, [])
+  const router = useRouter();
+  const { editor, onReady } = useFabricJSEditor()
+  /**
+   * TODO: provide percentage values for the height, width, left, top percentages associated
+   * with a blank product image, so that it's inner canvas container frame is placed
+   * in the correct position. 
+   */
   return (
-    <div className="w-full h-full fixed top-0 left-0 bg-black bg-opacity-70">
-      <canvas id="fabric-canvas" />
+    <div className='w-full h-full fixed top-0 left-0 bg-white bg-opacity overflow-scroll'>
+      <div className="w-full mt-10 px-24 mb-10">
+        <div className="w-full flex justify-between">
+          <button onClick={(e) => { e.preventDefault(); router.back(); }} className="py-4 px-6 bg-black text-white rounded-2xl font-quest">
+            back
+          </button>
+          <button className="py-4 px-6 bg-black text-white rounded-2xl font-quest">
+            test
+          </button>
+        </div>
+        <p className="font-quest text-lg text-gray-800 mx-auto text-center py-4">
+          Use the tools below to customize your product.
+        </p>
+        <div className="flex flex-row space-x-8 w-full">
+          <div className="flex flex-1 w-4/12">
+            <div className="w-full bg-white shadow-2xl rounded-lg p-2 h-96">
+
+            </div>
+          </div>
+          <div className="flex w-5/12 flex-col">
+            <div className="mb-4 p-8 bg-gray-200 rounded-xl">
+
+            </div>
+            <div className="w-full bg-white shadow-2xl rounded-lg p-2">
+              <div className="w-full overflow-hidden rounded-3xl px-10">
+                <div className="aspect-w-1 aspect-h-1 relative" href='/2/design-editor/short-sleeve-back'>
+                  <div style={props.productColor} className="w-full">
+                    <img src={props.productImage} className="w-full" />
+                  </div>
+                  <div className="inner-canvas-frame" style={{ borderColor: invert(props.productColor.background)}}>
+                    <FabricJSCanvas className="h-full" onReady={onReady} />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="flex w-3/12">
+            <div className="w-full bg-white shadow-2xl rounded-lg p-2">
+
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
-  );
+  )
+
 }  
 
 function StepTwo(props) {
   const backgroundStyles = {
     background: props.productColor || '#000000',
   };
+  const productFileNames = {
+    'short-sleeve-front': '/short-sleeve-front.png',
+    'short-sleeve-back': '/short-sleeve-back.png',
+    'short-sleeve-right-sleeve': '/short-sleeve-right-sleeve.png',
+    'short-sleeve-left-sleeve': '/short-sleeve-left-sleeve.png'
+  }
   const [showDesignEditor, setShowDesignEditor] = useState(false);
   const router = useRouter();
 
@@ -48,9 +90,11 @@ function StepTwo(props) {
           <div className="w-full flex flex-wrap justify-end space-y-8 space-x-5">
               <div className="w-full flex justify-end cursor-pointer">
                 <div className="w-1/2 overflow-hidden rounded-3xl shadow-2xl clear-right">
-                  <div className="aspect-w-1 aspect-h-1" style={backgroundStyles}>
-                    <img src="/short-sleeve-front.png" className="w-full" />
-                  </div>
+                  <Link href="/2/design-editor/short-sleeve-front" className="aspect-w-1 aspect-h-1"> 
+                    <div style={backgroundStyles}>
+                      <img src="/short-sleeve-front.png" className="w-full" />
+                    </div>
+                  </Link>
                 </div>
               </div>
               <div className="w-1/5 overflow-hidden rounded-3xl shadow-2xl cursor-pointer">
@@ -61,14 +105,18 @@ function StepTwo(props) {
                 </Link>
               </div>
               <div className="w-1/5 overflow-hidden rounded-3xl shadow-2xl cursor-pointer">
-                <div className="aspect-w-1 aspect-h-1" style={backgroundStyles}>
-                  <img src="/short-sleeve-right-sleeve.png" className="w-full" />
-                </div>
+                <Link className="aspect-w-1 aspect-h-1" href="/2/design-editor/short-sleeve-right-sleeve">
+                  <div style={backgroundStyles}>
+                    <img src="/short-sleeve-right-sleeve.png" className="w-full" />
+                  </div>
+                </Link>
               </div>
               <div className="w-1/5 overflow-hidden rounded-3xl shadow-2xl cursor-pointer">
-                <div className="aspect-w-1 aspect-h-1" style={backgroundStyles}>
-                  <img src="/short-sleeve-left-sleeve.png" className="w-full" />
-                </div>
+                <Link className="aspect-w-1 aspect-h-1" href="/2/design-editor/short-sleeve-left-sleeve"> 
+                  <div style={backgroundStyles}>
+                    <img src="/short-sleeve-left-sleeve.png" className="w-full" />
+                  </div>
+                </Link>
               </div>
           </div>
         </div>
@@ -84,7 +132,7 @@ function StepTwo(props) {
       </div>
 
       {
-        router.query.params[1] === 'design-editor' && <DesignEditor type={router.query.params[2]} />
+        router.query.params[1] === 'design-editor' && <DesignEditor productColor={backgroundStyles} productImage={productFileNames[router.query.params[2]]} />
       }
     </div>
   )

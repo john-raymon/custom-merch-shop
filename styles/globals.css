@@ -2,3 +2,13 @@
 @import url('https://fonts.googleapis.com/css2?family=Questrial&display=swap');
 @tailwind components;
 @tailwind utilities;
+
+@layer components {
+  .inner-canvas-frame {
+    @apply absolute border border-dotted;
+    height: 49.18%;
+    width: 26.87%;
+    left: 36.93%;
+    top: 25.78%;
+  }
+}
