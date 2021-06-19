@@ -1,8 +1,11 @@
 import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
-import { FabricJSCanvas, useFabricJSEditor } from 'fabricjs-react';
+import { fabric } from 'fabric'
+import { FabricJSCanvas, useFabricJSEditor } from 'fabricjs-react'; // TODO: fork and modify the default values for the fabric objects, allow passing in object options to on__ functions
 import invert from 'invert-color';
+import { Navigation } from 'lite-react-ui';
+import { v4 as uuidv4 } from 'uuid';
 
 /**
  * This component should receive the string for the area that's going to be designed and also the dimensions
@@ -10,7 +13,66 @@ import invert from 'invert-color';
  */
 function DesignEditor(props) {
   const router = useRouter();
-  const { editor, onReady } = useFabricJSEditor()
+  const { selectedObjects, editor, onReady:_onReady } = useFabricJSEditor();
+  const [ currentMode, setCurrentMode ] = useState('move');
+  const [ sidebarSettings, setSidebarSettings] = useState({ text: false });
+  const [canvas, setCanvas] = useState(null);
+
+  useEffect(() => {
+    if (selectedObjects.length && selectedObjects[0].type === 'textbox') {
+      setSidebarSettings({ text: true });
+    } else {
+      setSidebarSettings({ text: false });
+    }
+  }, [selectedObjects])
+  useEffect(() => {
+    const _currentMode = currentMode;
+    const _canvas = editor?.canvas;
+    const handleMouseDown = (options) => {
+      editor.canvas.on('mouse:up', function () {
+        editor.canvas.off('mouse:down', handleMouseDown);
+      });
+      const _currentMode = currentMode;
+      if (currentMode === 'text') {
+        const { x:left, y:top } = editor.canvas.getPointer(options.e);
+        const object = new fabric.Textbox("Text", {
+          fill: editor.strokeColor,
+          left,
+          top
+        })
+        const uniqueObjectId = uuidv4();
+        object.id = uniqueObjectId;
+        editor.canvas.add(object);
+        canvas.setActiveObject(object);
+        editor.canvas.defaultCursor = 'default';
+        setCurrentMode('move'); // explicitly revert back to move cursor when done
+      }
+    }
+    editor?.canvas.on('mouse:down', handleMouseDown);
+    return () => editor?.canvas.off('mouse:down', handleMouseDown);
+  }, [currentMode, canvas])
+  // const onAddText = () => {
+  //   editor.canvas.defaultCursor = 'crosshair';
+  //   setCurrentMode('text');
+  //   // if (selectedObjects?.length) {
+  //   //   return editor?.updateText("default text")
+  //   // }
+  //   // editor.canvas("default text", { fill: '#efefef' });
+  //   // use stroke in text fill, fill default is most of the time transparent
+  //   editor.canvas.on('mouse:down', handleMouseDown);
+  //   // const object = new fabric.Textbox("Text", {
+  //   //   fill: editor.strokeColor
+  //   // })
+  //   // editor.canvas.getPointer()
+  //   // editor.canvas.add(object)
+  //   // editor.canvas.hoverCursor = 'crosshair';
+
+  // }
+  function onReady(canvas) {
+    // canvas.on('mouse:down', handleMouseDown);
+    setCanvas(canvas);
+    _onReady(canvas);
+  }
   /**
    * TODO: provide percentage values for the height, width, left, top percentages associated
    * with a blank product image, so that it's inner canvas container frame is placed
@@ -19,17 +81,17 @@ function DesignEditor(props) {
   return (
     <div className='w-full h-full fixed top-0 left-0 bg-white bg-opacity overflow-scroll'>
       <div className="w-full mt-10 px-24 mb-10">
-        <div className="w-full flex justify-between">
+        <div className="w-full flex justify-between py-10">
           <button onClick={(e) => { e.preventDefault(); router.back(); }} className="py-4 px-6 bg-black text-white rounded-2xl font-quest">
             back
           </button>
+          <p className="font-quest text-lg text-gray-800 mx-auto text-center py-4">
+          Use the tools below to customize your product.
+          </p>
           <button className="py-4 px-6 bg-black text-white rounded-2xl font-quest">
             test
           </button>
         </div>
-        <p className="font-quest text-lg text-gray-800 mx-auto text-center py-4">
-          Use the tools below to customize your product.
-        </p>
         <div className="flex flex-row space-x-8 w-full">
           <div className="flex flex-1 w-4/12">
             <div className="w-full bg-white shadow-2xl rounded-lg p-2 h-96">
@@ -37,9 +99,41 @@ function DesignEditor(props) {
             </div>
           </div>
           <div className="flex w-5/12 flex-col">
-            <div className="mb-4 p-8 bg-gray-200 rounded-xl">
-
-            </div>
+            <Navigation className="mb-4 p-0" navLinks={[
+              {
+                onClick: () => {
+                  editor.canvas.defaultCursor = 'default';
+                  setCurrentMode('move');
+                },
+                active: currentMode === 'move',
+                render(props) {
+                  return ( 
+                    <div {...{...props, className: `${props.className} cursor-pointer px-2`}}>
+                      <div className="w-6 h-6 cursor-pointer">
+                        <svg viewBox='0 0 512 512' width="100%" height="100%">
+                          <title>Move</title><path fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='32' d='M176 112l80-80 80 80M255.98 32l.02 448M176 400l80 80 80-80M400 176l80 80-80 80M112 176l-80 80 80 80M32 256h448'/>
+                        </svg>
+                      </div>
+                    </div>
+                  )
+                }
+              }, 
+              {
+                active: currentMode === 'text',
+                onClick() {
+                  editor.canvas.defaultCursor = 'crosshair';
+                  setCurrentMode('text');
+                },
+                render(props) {
+                  return ( 
+                    <div {...{...props, className: `${props.className} cursor-pointer px-2`}}>
+                      <div className="w-6 h-6 cursor-pointer">
+                        <svg xmlns='http://www.w3.org/2000/svg' class='ionicon' viewBox='0 0 512 512'><title>Text</title><path fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='32' d='M32 415.5l120-320 120 320M230 303.5H74M326 239.5c12.19-28.69 41-48 74-48h0c46 0 80 32 80 80v144'/><path d='M320 358.5c0 36 26.86 58 60 58 54 0 100-27 100-106v-15c-20 0-58 1-92 5-32.77 3.86-68 19-68 58z' fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='32'/></svg>
+                      </div>
+                    </div>
+                  )
+                }
+              }]} />
             <div className="w-full bg-white shadow-2xl rounded-lg p-2">
               <div className="w-full overflow-hidden rounded-3xl px-10">
                 <div className="aspect-w-1 aspect-h-1 relative" href='/2/design-editor/short-sleeve-back'>
@@ -47,15 +141,22 @@ function DesignEditor(props) {
                     <img src={props.productImage} className="w-full" />
                   </div>
                   <div className="inner-canvas-frame" style={{ borderColor: invert(props.productColor.background)}}>
-                    <FabricJSCanvas className="h-full" onReady={onReady} />
+                    <FabricJSCanvas className="h-full cursor-crosshair" onReady={onReady} />
                   </div>
                 </div>
               </div>
             </div>
           </div>
           <div className="flex w-3/12">
-            <div className="w-full bg-white shadow-2xl rounded-lg p-2">
-
+            <div className="w-full bg-white shadow-2xl rounded-lg p-8">
+              {
+                sidebarSettings.text ?
+                  <div>
+                    <p className="font-quest text-lg tracking-wide font-bold">Text</p>
+                  </div>
+                :
+                ''
+              }
             </div>
           </div>
         </div>
