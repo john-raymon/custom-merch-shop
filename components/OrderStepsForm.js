@@ -16,6 +16,9 @@ function DesignEditor(props) {
   const { selectedObjects, editor, onReady:_onReady } = useFabricJSEditor();
   const [ currentMode, setCurrentMode ] = useState('move');
   const [ sidebarSettings, setSidebarSettings] = useState({ text: false });
+  const invertedColor = invert(props.productColor.background);
+  const [textColor, setTextColor] = useState(invertedColor);
+  const [textFontFamily, setTextFontFamily] = useState('Questrial');
   const [canvas, setCanvas] = useState(null);
 
   useEffect(() => {
@@ -26,17 +29,15 @@ function DesignEditor(props) {
     }
   }, [selectedObjects])
   useEffect(() => {
-    const _currentMode = currentMode;
-    const _canvas = editor?.canvas;
     const handleMouseDown = (options) => {
       editor.canvas.on('mouse:up', function () {
         editor.canvas.off('mouse:down', handleMouseDown);
       });
-      const _currentMode = currentMode;
       if (currentMode === 'text') {
         const { x:left, y:top } = editor.canvas.getPointer(options.e);
         const object = new fabric.Textbox("Text", {
-          fill: editor.strokeColor,
+          fill: textColor,
+          fontFamily: textFontFamily,
           left,
           top
         })
@@ -140,7 +141,7 @@ function DesignEditor(props) {
                   <div style={props.productColor} className="w-full">
                     <img src={props.productImage} className="w-full" />
                   </div>
-                  <div className="inner-canvas-frame" style={{ borderColor: invert(props.productColor.background)}}>
+                  <div className="inner-canvas-frame" style={{ borderColor: invertedColor}}>
                     <FabricJSCanvas className="h-full cursor-crosshair" onReady={onReady} />
                   </div>
                 </div>
@@ -149,10 +150,22 @@ function DesignEditor(props) {
           </div>
           <div className="flex w-3/12">
             <div className="w-full bg-white shadow-2xl rounded-lg p-8">
-              {
+              { 
                 sidebarSettings.text ?
                   <div>
-                    <p className="font-quest text-lg tracking-wide font-bold">Text</p>
+                    <p className="font-quest text-sm tracking-wide font-extrabold p-3">Text</p>
+                    <div className="flex w-full flex-wrap space-y-1">
+                      <select className="w-full text-gray-700 text-sm appearance-none p-3 outline-none" value="arial" name="font-family">
+                        <option value="arial">
+                          Arial
+                        </option>
+                      </select>
+                      <select className="w-1/2 text-gray-700 text-sm appearance-none p-3 outline-none" value="arial" name="font-family">
+                        <option value="arial">
+                          Arial
+                        </option>
+                      </select>
+                    </div>
                   </div>
                 :
                 ''
