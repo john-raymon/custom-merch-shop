@@ -19,15 +19,46 @@ function DesignEditor(props) {
   const invertedColor = invert(props.productColor.background);
   const [textColor, setTextColor] = useState(invertedColor);
   const [textFontFamily, setTextFontFamily] = useState('Questrial');
+  const [textFontStyle, setTextFontStyle] = useState('normal');
+  const allPixelFontSizes = [
+    '6',  '7',  '8',  '9',
+    '10', '11', '12', '14',
+    '16', '18', '21', '24',
+    '30', '36', '48', '60',
+    '72'
+  ];
+  const [textPixelFontSize, setTextPixelFontSize] = useState(allPixelFontSizes[0]);
   const [canvas, setCanvas] = useState(null);
 
   useEffect(() => {
     if (selectedObjects.length && selectedObjects[0].type === 'textbox') {
+      const textObject = selectedObjects[0];
+      setTextColor(textObject.get('fill'));
+      setTextFontFamily(textObject.get('fontFamily'));
+      setTextFontStyle(textObject.get('fontStyle'));
+      setTextPixelFontSize(textObject.get('fontSize'));
       setSidebarSettings({ text: true });
     } else {
       setSidebarSettings({ text: false });
     }
-  }, [selectedObjects])
+    
+  }, [selectedObjects]);
+
+  useEffect(() => {
+    // watch for changes to the text settings related state values
+    // then only apply changes to the selectedObject if it's a textbox type of fabric object
+    // todo: iterate through all selectedObjects and apply to all textbox types the text settings
+    if (selectedObjects.length && selectedObjects[0].type === 'textbox') { 
+      const selectedTextObject = selectedObjects[0];
+      selectedTextObject.set({
+        fill: textColor,
+        fontFamily: textFontFamily,
+        fontStyle: textFontStyle,
+        fontSize: textPixelFontSize
+      });
+      canvas.renderAll()
+    }
+  }, [textFontFamily, textFontStyle, textColor, textPixelFontSize])
   useEffect(() => {
     const handleMouseDown = (options) => {
       editor.canvas.on('mouse:up', function () {
@@ -38,6 +69,8 @@ function DesignEditor(props) {
         const object = new fabric.Textbox("Text", {
           fill: textColor,
           fontFamily: textFontFamily,
+          fontStyle: textFontStyle,
+          fontSize: textPixelFontSize,
           left,
           top
         })
@@ -49,30 +82,87 @@ function DesignEditor(props) {
         setCurrentMode('move'); // explicitly revert back to move cursor when done
       }
     }
+    const handleMouseWheel = opt => {
+      const delta = opt.e.deltaY;
+      let zoom = canvas.getZoom();
+      zoom *= 0.999 ** delta;
+      if (zoom > 20) zoom = 20;
+      if (zoom < 0.01) zoom = 0.01;
+      canvas.zoomToPoint({ x: opt.e.offsetX, y: opt.e.offsetY }, zoom);
+      opt.e.preventDefault();
+      opt.e.stopPropagation();
+    }
+    editor?.canvas.on('mouse:wheel', handleMouseWheel);
     editor?.canvas.on('mouse:down', handleMouseDown);
-    return () => editor?.canvas.off('mouse:down', handleMouseDown);
+    return () => {
+      editor?.canvas.off('mouse:down', handleMouseDown);
+      editor?.canvas.off('mouse:wheel', handleMouseWheel);
+    }
   }, [currentMode, canvas])
-  // const onAddText = () => {
-  //   editor.canvas.defaultCursor = 'crosshair';
-  //   setCurrentMode('text');
-  //   // if (selectedObjects?.length) {
-  //   //   return editor?.updateText("default text")
-  //   // }
-  //   // editor.canvas("default text", { fill: '#efefef' });
-  //   // use stroke in text fill, fill default is most of the time transparent
-  //   editor.canvas.on('mouse:down', handleMouseDown);
-  //   // const object = new fabric.Textbox("Text", {
-  //   //   fill: editor.strokeColor
-  //   // })
-  //   // editor.canvas.getPointer()
-  //   // editor.canvas.add(object)
-  //   // editor.canvas.hoverCursor = 'crosshair';
 
-  // }
   function onReady(canvas) {
     // canvas.on('mouse:down', handleMouseDown);
+    fabric.DPI = 700;
     setCanvas(canvas);
     _onReady(canvas);
+  }
+
+  const [pngUrl, setPngUrl] = useState(null);
+  function handleDownload(e) {
+    e.preventDefault();
+    var originWidth = canvas.getWidth();
+
+    function zoom (width)
+        {
+            const scale = width / canvas.getWidth();
+            const height = scale * canvas.getHeight();
+
+            // // canvas.setDimensions({
+            // //     "width": width,
+            // //     "height": height
+            // // });
+            // canvas.width = width;
+            // canvas.height = height;
+
+            canvas.calcOffset();
+            var objects = canvas.getObjects();
+            for (var i in objects) {
+                var scaleX = objects[i].scaleX;
+                var scaleY = objects[i].scaleY;
+                var left = objects[i].left;
+                var top = objects[i].top;
+
+                objects[i].scaleX = scaleX * scale;
+                objects[i].scaleY = scaleY * scale;
+                objects[i].left = left * scale;
+                objects[i].top = top * scale;
+
+                objects[i].setCoords();
+            }
+            canvas.renderAll();
+    }
+
+    zoom (8000);
+
+    // here you got width = 2000 image
+    var imageData = canvas.toDataURL({
+            format: 'png',
+            multiplier: 30
+        });
+    setPngUrl(imageData)
+    // zoom (originWidth);
+  }
+
+  function handleSettingChange(e) {
+    if (e.target.name === 'font-family') {
+      setTextFontFamily(e.target.value);
+    }
+    if (e.target.name === 'font-style') {
+      setTextFontStyle(e.target.value);  
+    }
+    if (e.target.name === 'font-size') {
+      setTextPixelFontSize(e.target.value);
+    }
   }
   /**
    * TODO: provide percentage values for the height, width, left, top percentages associated
@@ -82,16 +172,18 @@ function DesignEditor(props) {
   return (
     <div className='w-full h-full fixed top-0 left-0 bg-white bg-opacity overflow-scroll'>
       <div className="w-full mt-10 px-24 mb-10">
-        <div className="w-full flex justify-between py-10">
-          <button onClick={(e) => { e.preventDefault(); router.back(); }} className="py-4 px-6 bg-black text-white rounded-2xl font-quest">
+        <div className="w-full flex justify-between my-4">
+          <button onClick={(e) => { e.preventDefault(); router.back(); }} className="text-left text-gray-800 font-quest capitalize underline">
             back
           </button>
           <p className="font-quest text-lg text-gray-800 mx-auto text-center py-4">
           Use the tools below to customize your product.
           </p>
-          <button className="py-4 px-6 bg-black text-white rounded-2xl font-quest">
-            test
-          </button>
+          <button onClick={handleDownload} className="text-right text-gray-800 font-quest capitalize underline ">
+                      create png
+                    </button>
+          { pngUrl ? (<img src={pngUrl} width="10" />): ''}
+
         </div>
         <div className="flex flex-row space-x-8 w-full">
           <div className="flex flex-1 w-4/12">
@@ -155,15 +247,32 @@ function DesignEditor(props) {
                   <div>
                     <p className="font-quest text-sm tracking-wide font-extrabold p-3">Text</p>
                     <div className="flex w-full flex-wrap space-y-1">
-                      <select className="w-full text-gray-700 text-sm appearance-none p-3 outline-none" value="arial" name="font-family">
+                      <select value={textFontFamily} onChange={handleSettingChange} className="w-full text-gray-700 text-sm appearance-none p-3 outline-none" name="font-family">
                         <option value="arial">
                           Arial
+                        </option>
+                        <option value="Questrial">
+                          Questrial
                         </option>
                       </select>
-                      <select className="w-1/2 text-gray-700 text-sm appearance-none p-3 outline-none" value="arial" name="font-family">
-                        <option value="arial">
-                          Arial
+                      <select value={textFontStyle} onChange={handleSettingChange} className="w-1/2 text-gray-700 text-sm appearance-none p-3 outline-none" name="font-style">
+                        <option value="normal">
+                          Normal
                         </option>
+                        <option value="italic">
+                          Italic
+                        </option>
+                      </select>
+                      <select value={textPixelFontSize} onChange={handleSettingChange} className="w-1/2 text-gray-700 text-sm appearance-none p-3 outline-none" name="font-size">
+                        {
+                          allPixelFontSizes.map((size) => {
+                            return (
+                              <option value={size}>
+                                {size} px
+                              </option>
+                            )
+                          })
+                        }
                       </select>
                     </div>
                   </div>
