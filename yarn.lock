@@ -1334,8 +1334,9 @@ fabric@^4.5.0:
     canvas "^2.6.1"
     jsdom "^15.2.1"
 
-fabricjs-react@../fabricjs-react:
+"fabricjs-react@git://github.com/john-raymon/fabricjs-react.git":
   version "1.0.8"
+  resolved "git://github.com/john-raymon/fabricjs-react.git#d5e0e528dc2caa863f91d0f27c8adcbc27655b82"
 
 fast-deep-equal@^3.1.1:
   version "3.1.3"
