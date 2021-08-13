@@ -12,7 +12,7 @@
     "fabric": "^4.5.0",
     "fabricjs-react": "git://github.com/john-raymon/fabricjs-react.git",
     "invert-color": "^2.0.0",
-    "lite-react-ui": "^0.2.3",
+    "lite-react-ui": "^0.3.1",
     "next": "10.2.3",
     "next-connect": "^0.10.1",
     "postcss-import": "^14.0.2",

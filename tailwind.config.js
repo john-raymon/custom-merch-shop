@@ -3,9 +3,8 @@ module.exports = {
   darkMode: false, // or 'media' or 'class'
   theme: {
     fontFamily: {
-      'quest': 'Questrial',
+      'quest': ['Questrial'],
     },
-    extend: {},
   },
   variants: {
     extend: {

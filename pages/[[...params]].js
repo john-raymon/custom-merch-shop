@@ -12,6 +12,7 @@ export default function Home(props) {
     </div>
   )
 }
+
 // TODO : move serverSide data fetching logic to respective step
 export async function getServerSideProps(context) {
   const [currentStep] = context.params.params || [1];

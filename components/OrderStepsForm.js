@@ -58,7 +58,8 @@ function DesignEditor(props) {
       });
       canvas.renderAll()
     }
-  }, [textFontFamily, textFontStyle, textColor, textPixelFontSize])
+  }, [textFontFamily, textFontStyle, textColor, textPixelFontSize]);
+
   useEffect(() => {
     const handleMouseDown = (options) => {
       editor.canvas.on('mouse:up', function () {
@@ -98,14 +99,14 @@ function DesignEditor(props) {
       editor?.canvas.off('mouse:down', handleMouseDown);
       editor?.canvas.off('mouse:wheel', handleMouseWheel);
     }
-  }, [currentMode, canvas])
+  }, [currentMode, canvas]);
 
   function onReady(canvas) {
     // canvas.on('mouse:down', handleMouseDown);
     fabric.DPI = 700;
     setCanvas(canvas);
     _onReady(canvas);
-  }
+  };
 
   const [pngUrl, setPngUrl] = useState(null);
   function handleDownload(e) {
@@ -164,6 +165,7 @@ function DesignEditor(props) {
       setTextPixelFontSize(e.target.value);
     }
   }
+
   /**
    * TODO: provide percentage values for the height, width, left, top percentages associated
    * with a blank product image, so that it's inner canvas container frame is placed
@@ -179,9 +181,9 @@ function DesignEditor(props) {
           <p className="font-quest text-lg text-gray-800 mx-auto text-center py-4">
           Use the tools below to customize your product.
           </p>
-          <button onClick={handleDownload} className="text-right text-gray-800 font-quest capitalize underline ">
+          {/* <button onClick={handleDownload} className="text-right text-gray-800 font-quest capitalize underline ">
                       create png
-                    </button>
+                    </button> */}
           { pngUrl ? (<img src={pngUrl} width="10" />): ''}
 
         </div>
