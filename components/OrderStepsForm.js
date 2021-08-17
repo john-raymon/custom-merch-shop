@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { fabric } from 'fabric'
 import { FabricJSCanvas, useFabricJSEditor } from 'fabricjs-react'; // TODO: fork and modify the default values for the fabric objects, allow passing in object options to on__ functions
 import invert from 'invert-color';
-import { Navigation } from 'lite-react-ui';
+import { Navigation, Button } from 'lite-react-ui';
 import { v4 as uuidv4 } from 'uuid';
 
 /**
@@ -196,36 +196,38 @@ function DesignEditor(props) {
           <div className="flex w-5/12 flex-col">
             <Navigation className="mb-4 p-0" navLinks={[
               {
-                onClick: () => {
+                onClick: (e) => {
+                  e.preventDefault();
                   editor.canvas.defaultCursor = 'default';
                   setCurrentMode('move');
                 },
                 active: currentMode === 'move',
                 render(props) {
                   return ( 
-                    <div {...{...props, className: `${props.className} cursor-pointer px-2`}}>
+                    <Button buttonType="secondary" {...{...props, className: `${props.className} cursor-pointer px-2`}}>
                       <div className="w-6 h-6 cursor-pointer">
                         <svg viewBox='0 0 512 512' width="100%" height="100%">
                           <title>Move</title><path fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='32' d='M176 112l80-80 80 80M255.98 32l.02 448M176 400l80 80 80-80M400 176l80 80-80 80M112 176l-80 80 80 80M32 256h448'/>
                         </svg>
                       </div>
-                    </div>
+                    </Button>
                   )
                 }
               }, 
               {
                 active: currentMode === 'text',
-                onClick() {
+                onClick(e) {
+                  e.preventDefault();
                   editor.canvas.defaultCursor = 'crosshair';
                   setCurrentMode('text');
                 },
                 render(props) {
                   return ( 
-                    <div {...{...props, className: `${props.className} cursor-pointer px-2`}}>
+                    <Button buttonType="secondary" onClick={props.onClick} active={props.active} className={`${props.className} cursor-pointer px-2`}>
                       <div className="w-6 h-6 cursor-pointer">
                         <svg xmlns='http://www.w3.org/2000/svg' class='ionicon' viewBox='0 0 512 512'><title>Text</title><path fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='32' d='M32 415.5l120-320 120 320M230 303.5H74M326 239.5c12.19-28.69 41-48 74-48h0c46 0 80 32 80 80v144'/><path d='M320 358.5c0 36 26.86 58 60 58 54 0 100-27 100-106v-15c-20 0-58 1-92 5-32.77 3.86-68 19-68 58z' fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='32'/></svg>
                       </div>
-                    </div>
+                    </Button>
                   )
                 }
               }]} />
@@ -269,7 +271,7 @@ function DesignEditor(props) {
                         {
                           allPixelFontSizes.map((size) => {
                             return (
-                              <option value={size}>
+                              <option key={size} value={size}>
                                 {size} px
                               </option>
                             )
