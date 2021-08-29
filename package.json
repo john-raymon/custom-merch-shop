@@ -9,12 +9,16 @@
   },
   "dependencies": {
     "@tailwindcss/aspect-ratio": "^0.2.1",
-    "lite-react-ui": "^0.1.9",
+    "fabric": "^4.5.0",
+    "fabricjs-react": "^1.0.8",
+    "invert-color": "^2.0.0",
+    "lite-react-ui": "^0.3.1",
     "next": "10.2.3",
     "next-connect": "^0.10.1",
     "postcss-import": "^14.0.2",
     "react": "17.0.2",
-    "react-dom": "17.0.2"
+    "react-dom": "17.0.2",
+    "uuid": "^8.3.2"
   },
   "devDependencies": {
     "autoprefixer": "^10.2.5",
