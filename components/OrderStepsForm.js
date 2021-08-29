@@ -1,7 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
-import { fabric } from 'fabric'
 import { FabricJSCanvas, useFabricJSEditor } from 'fabricjs-react'; // TODO: fork and modify the default values for the fabric objects, allow passing in object options to on__ functions
 import invert from 'invert-color';
 import { Navigation, Button } from 'lite-react-ui';
