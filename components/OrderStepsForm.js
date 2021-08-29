@@ -111,47 +111,44 @@ function DesignEditor(props) {
   const [pngUrl, setPngUrl] = useState(null);
   function handleDownload(e) {
     e.preventDefault();
-    var originWidth = canvas.getWidth();
+    const originWidth = canvas.getWidth();
 
     function zoom (width)
         {
-            const scale = width / canvas.getWidth();
-            const height = scale * canvas.getHeight();
+          const scale = width / canvas.getWidth();
+          const height = scale * canvas.getHeight();
 
-            // // canvas.setDimensions({
-            // //     "width": width,
-            // //     "height": height
-            // // });
-            // canvas.width = width;
-            // canvas.height = height;
+          canvas.setDimensions({
+              "width": width,
+              "height": height
+          });
 
-            canvas.calcOffset();
-            var objects = canvas.getObjects();
-            for (var i in objects) {
-                var scaleX = objects[i].scaleX;
-                var scaleY = objects[i].scaleY;
-                var left = objects[i].left;
-                var top = objects[i].top;
+          canvas.calcOffset();
+          const objects = canvas.getObjects();
+          for (let i in objects) {
+              const scaleX = objects[i].scaleX;
+              const scaleY = objects[i].scaleY;
+              const left = objects[i].left;
+              const top = objects[i].top;
 
-                objects[i].scaleX = scaleX * scale;
-                objects[i].scaleY = scaleY * scale;
-                objects[i].left = left * scale;
-                objects[i].top = top * scale;
+              objects[i].scaleX = scaleX * scale;
+              objects[i].scaleY = scaleY * scale;
+              objects[i].left = left * scale;
+              objects[i].top = top * scale;
 
-                objects[i].setCoords();
-            }
-            canvas.renderAll();
+              objects[i].setCoords();
+          }
+          canvas.renderAll();
     }
 
-    zoom (8000);
+    zoom (10000);
 
-    // here you got width = 2000 image
-    var imageData = canvas.toDataURL({
+    const imageData = canvas.toDataURL({
             format: 'png',
-            multiplier: 30
+            quality: 1
         });
     setPngUrl(imageData)
-    // zoom (originWidth);
+    zoom (originWidth);
   }
 
   function handleSettingChange(e) {
@@ -181,9 +178,9 @@ function DesignEditor(props) {
           <p className="font-quest text-lg text-gray-800 mx-auto text-center py-4">
           Use the tools below to customize your product.
           </p>
-          {/* <button onClick={handleDownload} className="text-right text-gray-800 font-quest capitalize underline ">
+          <button onClick={handleDownload} className="text-right text-gray-800 font-quest capitalize underline ">
                       create png
-                    </button> */}
+                    </button>
           { pngUrl ? (<img src={pngUrl} width="10" />): ''}
 
         </div>
@@ -225,7 +222,7 @@ function DesignEditor(props) {
                   return ( 
                     <Button buttonType="secondary" onClick={props.onClick} active={props.active} className={`${props.className} cursor-pointer px-2`}>
                       <div className="w-6 h-6 cursor-pointer">
-                        <svg xmlns='http://www.w3.org/2000/svg' class='ionicon' viewBox='0 0 512 512'><title>Text</title><path fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='32' d='M32 415.5l120-320 120 320M230 303.5H74M326 239.5c12.19-28.69 41-48 74-48h0c46 0 80 32 80 80v144'/><path d='M320 358.5c0 36 26.86 58 60 58 54 0 100-27 100-106v-15c-20 0-58 1-92 5-32.77 3.86-68 19-68 58z' fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='32'/></svg>
+                        <svg xmlns='http://www.w3.org/2000/svg' className='ionicon' viewBox='0 0 512 512'><title>Text</title><path fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='32' d='M32 415.5l120-320 120 320M230 303.5H74M326 239.5c12.19-28.69 41-48 74-48h0c46 0 80 32 80 80v144'/><path d='M320 358.5c0 36 26.86 58 60 58 54 0 100-27 100-106v-15c-20 0-58 1-92 5-32.77 3.86-68 19-68 58z' fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='32'/></svg>
                       </div>
                     </Button>
                   )

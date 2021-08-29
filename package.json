@@ -10,7 +10,7 @@
   "dependencies": {
     "@tailwindcss/aspect-ratio": "^0.2.1",
     "fabric": "^4.5.0",
-    "fabricjs-react": "git://github.com/john-raymon/fabricjs-react.git",
+    "fabricjs-react": "^1.0.8",
     "invert-color": "^2.0.0",
     "lite-react-ui": "^0.3.1",
     "next": "10.2.3",
