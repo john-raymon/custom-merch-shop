@@ -171,9 +171,9 @@ function DesignEditor(props) {
     <div className='w-full h-full fixed top-0 left-0 bg-white bg-opacity overflow-scroll'>
       <div className="w-full mt-10 px-24 mb-10">
         <div className="w-full flex justify-between my-4">
-          <button onClick={(e) => { e.preventDefault(); router.back(); }} className="text-left text-gray-800 font-quest capitalize underline">
+          <Button buttonType="secondary" onClick={(e) => { e.preventDefault(); router.back(); }} className="text-gray-800 font-quest capitalize p-1">
             back
-          </button>
+          </Button>
           <p className="font-quest text-lg text-gray-800 mx-auto text-center py-4">
           Use the tools below to customize your product.
           </p>
@@ -258,7 +258,7 @@ function DesignEditor(props) {
                       <select value={textFontStyle} onChange={handleSettingChange} className="w-1/2 text-gray-700 text-sm appearance-none p-3 outline-none" name="font-style">
                         <option value="normal">
                           Normal
-                        </option>
+                        </option>``
                         <option value="italic">
                           Italic
                         </option>
@@ -346,12 +346,12 @@ function StepTwo(props) {
       </div>
 
       <div className="w-full flex justify-between space-x-1">
-          <button onClick={props.prevStep} className="disabled:opacity-50 w-full md:w-2/5 font-quest text-white text-md bg-black p-4 self-end my-1 outline-none">
+          <Button buttonType="secondary" onClick={props.prevStep} className="disabled:opacity-50 w-full md:w-2/5 font-quest text-white text-md bg-black p-4 self-end my-1 outline-none">
             Prev
-          </button>
-          <button className="disabled:opacity-50 w-full md:w-2/5 font-quest text-white text-md bg-black p-4 self-end my-1 outline-none">
+          </Button>
+          <Button buttonType="secondary" type="button" className="disabled:opacity-50 w-full md:w-2/5 font-quest text-white text-md bg-black p-4 self-end my-1 outline-none">
             Next
-          </button>
+          </Button>
       </div>
 
       {
@@ -513,9 +513,9 @@ function StepOne(props) {
             })
           }
         </ul>
-        <button onClick={validateThenSubmitNext} disabled={selectedProductVariant ? false : true} className="disabled:opacity-50 w-full md:w-2/5 font-quest text-white text-md bg-black p-4 self-end my-16 outline-none">
+        <Button buttonType="secondary" onClick={validateThenSubmitNext} disabled={selectedProductVariant ? false : true} className="disabled:opacity-50 w-full md:w-2/5 font-quest text-white text-md bg-black p-4 self-end my-16 outline-none">
           Start designing your item
-        </button>
+        </Button>
       </div>
     </div>
   );
