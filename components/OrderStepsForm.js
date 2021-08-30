@@ -5,6 +5,7 @@ import { FabricJSCanvas, useFabricJSEditor } from 'fabricjs-react'; // TODO: for
 import invert from 'invert-color';
 import { Navigation, Button } from 'lite-react-ui';
 import { v4 as uuidv4 } from 'uuid';
+import opentype from 'opentype.js'
 
 /**
  * This component should receive the string for the area that's going to be designed and also the dimensions
@@ -26,8 +27,24 @@ function DesignEditor(props) {
     '30', '36', '48', '60',
     '72'
   ];
-  const [textPixelFontSize, setTextPixelFontSize] = useState(allPixelFontSizes[0]);
+  const [textPixelFontSize, setTextPixelFontSize] = useState(allPixelFontSizes[14]);
   const [canvas, setCanvas] = useState(null);
+  const [fonts, setFont] = useState({});
+
+  useEffect(() => {
+    function loadFont(name, path) {
+      opentype.load(path, function (err, font) {
+        if (err) {
+          console.error('Error loading font ' + name + ' at ' + path, err);
+        } else {
+          debugger;
+          setFont({...fonts, [name]: font});
+        }
+      });
+    }
+
+    loadFont('Questrial', '/fonts/Questrial.ttf');
+  }, []);
 
   useEffect(() => {
     if (selectedObjects.length && selectedObjects[0].type === 'textbox') {
@@ -60,13 +77,66 @@ function DesignEditor(props) {
   }, [textFontFamily, textFontStyle, textColor, textPixelFontSize]);
 
   useEffect(() => {
+    if (canvas) {
+      canvas.contextCache.constructor.prototype.getFontSize = function getFontSize() {
+        const _font = this.font;
+        debugger;
+        const size = 60;
+        debugger;
+        return size;
+      };
+      
+      canvas.contextCache.constructor.prototype.getFontFamily = function getFontFamily() {
+        const _font = this.font;
+        debugger;
+        return this.font.split(' ')[1]
+      };
+      
+      canvas.contextCache.constructor.prototype.measureText = function measureText(text) {
+        debugger;
+        let width;
+        const _font = this.getFontFamily();
+        const foo = fonts;
+        debugger;
+        const font = fonts[this.getFontFamily()];
+        debugger;
+        font.forEachGlyph(`${text} `, 0, 0, this.getFontSize(), {}, (glyph, x, y, fontSize) => {
+          width = fontSize;
+          debugger;
+        });
+        return { width };
+      };
+      
+      canvas.contextCache.constructor.prototype.fillText = function fillText(text, x, y) {
+        debugger;
+        const width = this.measureText(text).width;
+        debugger;
+        const isRtl = this.direction === 'rtl';
+        debugger;
+        const offsetFactor = {
+          left: 0,
+          center: 0.5,
+          right: 1,
+        };
+        const font = fonts[this.getFontFamily()];
+        const ta = this.textAlign;
+        const offsetX = x - (width * offsetFactor[this.textAlign]);
+        debugger;
+        const path = font.getPath(text, offsetX, y, this.getFontSize());
+        path.fill = this.fillStyle;
+        debugger;
+        path.draw(this);
+      };
+    }
     const handleMouseDown = (options) => {
+
       editor.canvas.on('mouse:up', function () {
         editor.canvas.off('mouse:down', handleMouseDown);
       });
+
       if (currentMode === 'text') {
         const { x:left, y:top } = editor.canvas.getPointer(options.e);
-        const object = new fabric.Textbox("Text", {
+        const object = new fabric.Textbox("T", {
           fill: textColor,
           fontFamily: textFontFamily,
           fontStyle: textFontStyle,
@@ -82,6 +152,7 @@ function DesignEditor(props) {
         setCurrentMode('move'); // explicitly revert back to move cursor when done
       }
     }
+
     const handleMouseWheel = opt => {
       const delta = opt.e.deltaY;
       let zoom = canvas.getZoom();
@@ -92,6 +163,7 @@ function DesignEditor(props) {
       opt.e.preventDefault();
       opt.e.stopPropagation();
     }
+
     editor?.canvas.on('mouse:wheel', handleMouseWheel);
     editor?.canvas.on('mouse:down', handleMouseDown);
     return () => {
@@ -104,6 +176,7 @@ function DesignEditor(props) {
     // canvas.on('mouse:down', handleMouseDown);
     fabric.DPI = 700;
     setCanvas(canvas);
+
     _onReady(canvas);
   };
 
@@ -229,7 +302,7 @@ function DesignEditor(props) {
               }]} />
             <div className="w-full bg-white shadow-2xl rounded-lg p-2">
               <div className="w-full overflow-hidden rounded-3xl px-10">
-                <div className="aspect-w-1 aspect-h-1 relative" href='/2/design-editor/short-sleeve-back'>
+                <div className="aspect-w-1 aspect-h-1 relative">
                   <div style={props.productColor} className="w-full">
                     <img src={props.productImage} className="w-full" />
                   </div>
